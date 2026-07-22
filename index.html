@@ -1,61 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>StudySathi AI - All in One</title>
+<title>StudySathi AI</title>
 <style>
-  body { font-family: Arial; padding: 20px; background: #f5f5f5; }
-  .tabs { margin-bottom: 20px; }
-  .tab { padding: 10px 20px; cursor: pointer; border: none; background: #ddd; margin-right: 5px; border-radius: 5px; }
-  .tab.active { background: #4CAF50; color: white; }
-  .content { display: none; padding: 20px; background: white; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-  .content.active { display: block; }
-  textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; height: 150px; }
-  button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  body { font-family: Arial; padding: 30px; background: #f5f5f5; text-align: center; }
+  h1 { color: #4CAF50; }
+  textarea { width: 80%; height: 150px; padding: 10px; font-size: 16px; border: 2px solid #4CAF50; border-radius: 8px; }
+  button { padding: 12px 25px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin: 10px; }
   button:hover { background: #45a049; }
-  pre { background: #f0f0f0; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
+  pre { background: white; padding: 20px; margin-top: 20px; border-radius: 8px; text-align: left; white-space: pre-wrap; min-height: 100px; }
 </style>
 </head>
 <body>
 
 <h1>📚 StudySathi AI</h1>
 
-<div class="tabs">
-  <button class="tab active" onclick="openTab('summarize')">Summarize + Quiz</button>
-  <button class="tab" onclick="openTab('interview')">Mock Interview</button>
-</div>
+<textarea id="notes" placeholder="Paste your notes here..."></textarea>
+<br>
+<button onclick="generate()">Summarize + Quiz</button>
+<br>
+<button onclick="window.location.href='/api/interview'">Start Mock Interview</button>
 
-<div id="summarize" class="content active">
-  <h2>Paste your notes</h2>
-  <textarea id="notes" placeholder="Paste your notes here..."></textarea>
-  <button onclick="generate()">Generate Summary + Quiz</button>
-  <pre id="output"></pre>
-</div>
-
-<div id="interview" class="content">
-  <h2>Mock Interview</h2>
-  <p>Click below to start 5 question mock interview</p>
-  <button onclick="window.location.href='/api/interview'">Start Interview</button>
-</div>
+<pre id="output">Yahan Summary + Quiz aayega</pre>
 
 <script>
-function openTab(tabName) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add('active');
-  document.getElementById(tabName).classList.add('active');
-}
-
 async function generate() {
   const notes = document.getElementById('notes').value;
   const output = document.getElementById('output');
   output.innerText = "Loading...";
   const res = await fetch('/api/generate', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({notes})
   });
   const data = await res.json();
-  output.innerText = data.result || "Error";
+  output.innerText = data.result || "Error: " + JSON.stringify(data);
 }
 </script>
 
