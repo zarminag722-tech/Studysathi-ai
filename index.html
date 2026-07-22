@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>StudySathi AI</title>
-  <style>
+<title>StudySathi AI - All in One</title>
+<style>
     body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+    .tabs { margin-bottom: 20px; }
     .tab { padding: 10px 20px; cursor: pointer; border: none; background: #ddd; margin-right: 5px; border-radius: 5px; }
     .tab.active { background: #4CAF50; color: white; }
     .content { display: none; padding: 20px; background: white; margin-top: 10px; border-radius: 8px; }
@@ -11,57 +12,60 @@
     textarea, input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
     button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
     button:hover { background: #45a049; }
-  </style>
+</style>
 </head>
 <body>
-  <h1>StudySathi AI 🚀</h1>
-  
-  <button class="tab active" onclick="openTab('summarize')">StudySathi</button>
-  <button class="tab" onclick="openTab('interview')">AI Mock Interview</button>
+<h1>📚 StudySathi AI</h1>
 
-  <div id="summarize" class="content active">
-    <h2>Text Summarizer + MCQ</h2>
-    <textarea id="text" rows="8" placeholder="Yahan text paste karo..."></textarea>
-    <button onclick="summarize()">Generate</button>
-    <div id="result1" style="margin-top:20px; white-space: pre-wrap;"></div>
-  </div>
+<div class="tabs">
+    <button class="tab active" onclick="showTab('summarizer')">StudySathi</button>
+    <button class="tab" onclick="showTab('interviewer')">AI Mock Interview</button>
+</div>
 
-  <div id="interview" class="content">
-    <h2>AI Mock Interview Coach 🎤</h2>
-    <input id="job" placeholder="Job title likho: e.g. Frontend Developer">
+<div id="summarizer" class="content active">
+    <h2>Text Summarizer + MCQ Generator</h2>
+    <textarea id="notes" rows="10" placeholder="Paste your notes or chapter here..."></textarea>
+    <button onclick="summarize()">Generate Summary + Quiz</button>
+    <div id="output"></div>
+</div>
+
+<div id="interviewer" class="content">
+    <h2>AI Mock Interview</h2>
+    <input id="jobTitle" placeholder="Enter Job Title: e.g. Frontend Developer">
     <button onclick="startInterview()">Start Interview</button>
-    <div id="result2" style="margin-top:20px; white-space: pre-wrap;"></div>
-  </div>
+    <div id="interviewOutput"></div>
+</div>
 
 <script>
-function openTab(tab) {
-  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(tab).classList.add('active');
-  event.target.classList.add('active');
-}
-
-async function summarize() {
-  const text = document.getElementById('text').value;
-  const res = await fetch('/api/summarize', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({text})
-  });
-  const data = await res.json();
-  document.getElementById('result1').innerText = data.result;
-}
-
-async function startInterview() {
-  const job = document.getElementById('job').value;
-  const res = await fetch('/api/interview', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({job})
-  });
-  const data = await res.json();
-  document.getElementById('result2').innerText = data.result;
-}
+    const API_KEY = "GEMINI_API_KEY";
+    function showTab(tabName) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+    }
+    async function callGemini(prompt) {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({contents: [{parts: [{text: prompt}]}]})
+        });
+        const data = await res.json();
+        return data.candidates[0].content.parts[0].text;
+    }
+    async function summarize() {
+        const notes = document.getElementById('notes').value;
+        document.getElementById('output').innerHTML = "Loading...";
+        const prompt = `Summarize this in 3 bullet points and create 5 MCQs with answers: ${notes}`;
+        const result = await callGemini(prompt);
+        document.getElementById('output').innerHTML = `<pre>${result}</pre>`;
+    }
+    async function startInterview() {
+        const job = document.getElementById('jobTitle').value;
+        document.getElementById('interviewOutput').innerHTML = "Loading...";
+        const prompt = `You are an HR interviewer. Ask 5 interview questions for a ${job} role, one by one.`;
+        const result = await callGemini(prompt);
+        document.getElementById('interviewOutput').innerHTML = `<pre>${result}</pre>`;
+    }
 </script>
 </body>
 </html>
