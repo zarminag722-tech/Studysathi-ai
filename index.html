@@ -42,6 +42,7 @@ async function mockInterview() {
   if(!notes) { alert('Pehle notes paste karo'); return; }
 
   output.innerText = "Loading Mock Interview...";
+
   const res = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -50,6 +51,7 @@ async function mockInterview() {
   const data = await res.json();
   output.innerText = data.result || "Error: " + JSON.stringify(data);
 }
+</script>
 </script>
 
 </body>
