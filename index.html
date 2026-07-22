@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>StudySathi AI</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+    .tab { padding: 10px 20px; cursor: pointer; border: none; background: #ddd; margin-right: 5px; border-radius: 5px; }
+    .tab.active { background: #4CAF50; color: white; }
+    .content { display: none; padding: 20px; background: white; margin-top: 10px; border-radius: 8px; }
+    .content.active { display: block; }
+    textarea, input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+    button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #45a049; }
+  </style>
+</head>
+<body>
+  <h1>StudySathi AI 🚀</h1>
+  
+  <button class="tab active" onclick="openTab('summarize')">StudySathi</button>
+  <button class="tab" onclick="openTab('interview')">AI Mock Interview</button>
+
+  <div id="summarize" class="content active">
+    <h2>Text Summarizer + MCQ</h2>
+    <textarea id="text" rows="8" placeholder="Yahan text paste karo..."></textarea>
+    <button onclick="summarize()">Generate</button>
+    <div id="result1" style="margin-top:20px; white-space: pre-wrap;"></div>
+  </div>
+
+  <div id="interview" class="content">
+    <h2>AI Mock Interview Coach 🎤</h2>
+    <input id="job" placeholder="Job title likho: e.g. Frontend Developer">
+    <button onclick="startInterview()">Start Interview</button>
+    <div id="result2" style="margin-top:20px; white-space: pre-wrap;"></div>
+  </div>
+
+<script>
+function openTab(tab) {
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+async function summarize() {
+  const text = document.getElementById('text').value;
+  const res = await fetch('/api/summarize', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({text})
+  });
+  const data = await res.json();
+  document.getElementById('result1').innerText = data.result;
+}
+
+async function startInterview() {
+  const job = document.getElementById('job').value;
+  const res = await fetch('/api/interview', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({job})
+  });
+  const data = await res.json();
+  document.getElementById('result2').innerText = data.result;
+}
+</script>
+</body>
+</html>
