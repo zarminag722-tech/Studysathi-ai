@@ -19,7 +19,7 @@
 <br>
 <button onclick="generate()">Summarize + Quiz</button>
 <br>
-<button onclick="window.location.href='/api/interview'">Start Mock Interview</button>
+<button onclick="mockInterview()">Start Mock Interview</button> 
 
 <pre id="output">Yahan Summary + Quiz aayega</pre>
 
@@ -32,6 +32,20 @@ async function generate() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({notes})
+  });
+  const data = await res.json();
+  output.innerText = data.result || "Error: " + JSON.stringify(data);
+}
+async function mockInterview() {
+  const notes = document.getElementById('notes').value;
+  const output = document.getElementById('output');
+  if(!notes) { alert('Pehle notes paste karo'); return; }
+
+  output.innerText = "Loading Mock Interview...";
+  const res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({notes: notes + "\n\nTask: Based on these notes, act like an interviewer. Ask 5 tough interview questions with model answers."})
   });
   const data = await res.json();
   output.innerText = data.result || "Error: " + JSON.stringify(data);
