@@ -1,58 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>StudySathi AI</title>
-<style>
-  body { font-family: Arial; padding: 30px; background: #f5f5f5; text-align: center; }
-  h1 { color: #4CAF50; }
-  textarea { width: 80%; height: 150px; padding: 10px; font-size: 16px; border: 2px solid #4CAF50; border-radius: 8px; }
-  button { padding: 12px 25px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin: 10px; }
-  button:hover { background: #45a049; }
-  pre { background: white; padding: 20px; margin-top: 20px; border-radius: 8px; text-align: left; white-space: pre-wrap; min-height: 100px; }
-</style>
+  <meta charset="UTF-8">
+  <title>StudySathi AI</title>
+  <style>
+    body { font-family: Arial; max-width: 700px; margin: 50px auto; padding: 20px; background:#f5f5f5; }
+    textarea { width: 100%; height: 150px; margin: 10px 0; padding:10px; }
+    button { padding: 12px 20px; margin: 5px; cursor: pointer; background:#4CAF50; color:white; border:none; border-radius:5px; }
+    button:hover { background:#45a049; }
+    #output { margin-top: 20px; padding:15px; background:white; border-radius:5px; white-space: pre-wrap; }
+  </style>
 </head>
 <body>
+  <h1>📚 StudySathi AI</h1>
+  <p>Paste your notes below</p>
+  <textarea id="notes" placeholder="Paste your notes here..."></textarea>
+  <br>
+  <button onclick="summarize()">Summarize + Quiz</button>
+  <button onclick="mockInterview()">Start Mock Interview</button>
+  <div id="output"></div>
 
-<h1>📚 StudySathi AI</h1>
+  <script>
+    async function summarize() {
+      const notes = document.getElementById('notes').value;
+      document.getElementById('output').innerText = "Loading...";
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ notes: "Summarize this and make 3 MCQs: " + notes })
+      });
+      const data = await res.json();
+      document.getElementById('output').innerText = data.result || data.error;
+    }
 
-<textarea id="notes" placeholder="Paste your notes here..."></textarea>
-<br>
-<button onclick="generate()">Summarize + Quiz</button>
-<br>
-<button onclick="mockInterview()">Start Mock Interview</button> 
-
-<pre id="output">Yahan Summary + Quiz aayega</pre>
-
-<script>
-async function generate() {
-  const notes = document.getElementById('notes').value;
-  const output = document.getElementById('output');
-  output.innerText = "Loading...";
-  const res = await fetch('/api/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({notes})
-  });
-  const data = await res.json();
-  output.innerText = data.result || "Error: " + JSON.stringify(data);
-}
-async function mockInterview() {
-  const notes = document.getElementById('notes').value;
-  const output = document.getElementById('output');
-  if(!notes) { alert('Pehle notes paste karo'); return; }
-
-  output.innerText = "Loading Mock Interview...";
-
-  const res = await fetch('/api/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({notes: notes + "\n\nTask: Based on these notes, act like an interviewer. Ask 5 tough interview questions with model answers."})
-  });
-  const data = await res.json();
-  output.innerText = data.result || "Error: " + JSON.stringify(data);
-}
-</script>
-</script>
-
+    async function mockInterview() {
+      const notes = document.getElementById('notes').value;
+      document.getElementById('output').innerText = "Loading...";
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ notes: "Act as an interviewer. Based on these notes: " + notes + ". Ask 5 interview questions with answers." })
+      });
+      const data = await res.json();
+      document.getElementById('output').innerText = data.result || data.error;
+    }
+  </script>
 </body>
 </html>
